@@ -1,0 +1,88 @@
+<script> $(document).ready(function() {
+    var calendar = $('#calendar').fullCalendar({
+     editable:true,
+     header:{
+      left:'prev,next today',
+      center:'title',
+      right:'month,agendaWeek,agendaDay'
+     },
+     events: 'viewCalEvents.php',
+     selectable:true,
+     selectHelper:true,
+     select: function(Start_Date, End_Date, allDay)
+     {
+      var Event_Name = prompt("Enter Event Title");
+      if(Event_Name)
+      {
+       var Start_Date = $.fullCalendar.formatDate(Start_Date, "YYYY-MM-DD HH:mm:ss");
+       var End_Date = $.fullCalendar.formatDate(End_Date, "YYYY-MM-DD HH:mm:ss");
+       $.ajax({
+        url:"addCalEvent.php",
+        type:"POST",
+        data:{Event_Name:Event_Name, Start_Date:Start_Date, End_Date:End_Date},
+        success:function()
+        {
+         calendar.fullCalendar('refetchEvents');
+         alert("Added Successfully");
+        }
+       })
+      }
+     },
+     editable:true,
+     eventResize:function(event)
+     {
+      var Start_Date = $.fullCalendar.formatDate(event.Start_Date, "Y-MM-DD HH:mm:ss");
+      var End_Date = $.fullCalendar.formatDate(event.End_Date, "Y-MM-DD HH:mm:ss");
+      var Event_Name = event.Event_Name;
+      var EventID = event.EventID;
+      $.ajax({
+       url:"updateCalEvent.php",
+       type:"POST",
+       data:{Event_Name:Event_Name, Start_Date:Start_Date, End_Date:End_Date, EventID:EventID},
+       success:function(){
+        calendar.fullCalendar('refetchEvents');
+        alert('Event Update');
+       }
+      })
+     },
+ 
+     eventDrop:function(event)
+     {
+      var Start_Date = $.fullCalendar.formatDate(event.Start_Date, "Y-MM-DD HH:mm:ss");
+      var End_Date = $.fullCalendar.formatDate(event.End_Date, "Y-MM-DD HH:mm:ss");
+      var Event_Name = event.Event_Name;
+      var EventID = event.EventID;
+      $.ajax({
+       url:"updateCalEvent.php",
+       type:"POST",
+       data:{Event_Name:Event_Name, Start_Date:Start_Date, End_Date:End_Date, EventID:EventID},
+       success:function()
+       {
+        calendar.fullCalendar('refetchEvents');
+        alert("Event Updated");
+       }
+      });
+     },
+ 
+     eventClick:function(event)
+     {
+      if(confirm("Are you sure you want to remove this event?"))
+      {
+       var EventID = event.EventID;
+       $.ajax({
+        url:"deleteCalEvent.php",
+        type:"POST",
+        data:{EventID:EventID},
+        success:function()
+        {
+         calendar.fullCalendar('refetchEvents');
+         alert("Event Removed");
+        }
+       })
+      }
+     },
+ 
+    });
+   });
+   </script>
+   
